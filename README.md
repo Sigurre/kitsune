@@ -2,6 +2,12 @@
 
 **Launcher:** `kit [directory]`
 
+## Installation
+
+Run the installer script:
+
+```bash
+curl -sSL https://github.com/Sigurre/kitsune/raw/main/install.sh | bash
 ---
 
 ## Layout
