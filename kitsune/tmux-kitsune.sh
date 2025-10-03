@@ -1,39 +1,64 @@
+
 #!/usr/bin/env bash
-# Launch or attach to a tmux Kitsune session with Ranger, Neovim, Shell, and Claude (hidden)
+# Kitsune tmux IDE launcher
+# Layout:
+#  -------------------------------
+# |           |                   |
+# |  Ranger   |      Neovim       |
+# |           |                   |
+#  -------------------------------
+# |           Terminal (bottom)   |
+#  -------------------------------
+# Hidden Claude pane (can swap with Ranger)
 
-SESSION="kitsune"
-DIR="${1:-$HOME}"
+SESSION_NAME="kitsune"
 
-tmux has-session -t $SESSION 2>/dev/null
-if [ $? != 0 ]; then
-  # Create session
-  tmux new-session -d -s $SESSION -c "$DIR" -n editor
-
-  # --- Right side: Neovim pane (main editor) ---
-  tmux split-window -h -p 70 -t $SESSION:0 -c "$DIR"
-  tmux send-keys -t $SESSION:0.1 'nvim' C-m
-  tmux select-pane -T "nvim"
-
-  # --- Bottom: Shell pane ---
-  tmux split-window -v -p 25 -t $SESSION:0.1 -c "$DIR"
-  tmux select-pane -T "shell"
-
-  # --- Left side: Ranger pane ---
-  tmux select-pane -t $SESSION:0.0
-  tmux send-keys -t $SESSION:0.0 'ranger' C-m
-  tmux select-pane -T "ranger"
-
-  # --- Create Claude pane (same size as Ranger) ---
-  tmux split-window -h -p 30 -t $SESSION:0 -c "$DIR"
-  tmux send-keys -t $SESSION:0.3 'claude' C-m
-  tmux select-pane -T "Claude"
-
-  # --- Swap Ranger and Claude so Claude is hidden ---
-  tmux swap-pane -s $SESSION:0.0 -t $SESSION:0.3
-
-  # Focus Neovim at startup
-  tmux select-pane -t $SESSION:0.1
+# Check if tmux session exists
+if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+    echo "Attaching to existing Kitsune session..."
+    tmux attach -t "$SESSION_NAME"
+    exit 0
 fi
 
-# Attach to session
-tmux attach -t $SESSION
+# Start new tmux session
+tmux new-session -d -s "$SESSION_NAME" -n Terminal
+
+# --- Bottom pane: terminal (current directory) ---
+tmux send-keys -t "$SESSION_NAME":0 "cd $PWD" C-m
+
+# --- Left pane: Ranger ---
+tmux split-window -h -p 30 -t "$SESSION_NAME":0
+tmux send-keys -t "$SESSION_NAME":0 "ranger" C-m
+tmux select-pane -T "Ranger"
+
+# --- Right pane: Neovim (majority of window) ---
+tmux split-window -v -p 70 -t "$SESSION_NAME":0.1
+tmux send-keys -t "$SESSION_NAME":0.1 "nvim" C-m
+tmux select-pane -T "Neovim"
+
+# --- Hidden Claude pane ---
+tmux split-window -h -p 30 -t "$SESSION_NAME":0
+tmux send-keys -t "$SESSION_NAME":0.2 "claude" C-m
+tmux select-pane -T "Claude"
+tmux swap-pane -s 0.0 -t 0.3   # Start hidden swap with Ranger
+tmux select-pane -t 0.0         # Focus Ranger
+
+# --- Status line configuration ---
+tmux set-option -g status on
+tmux set-option -g status-bg colour235
+tmux set-option -g status-fg colour136
+tmux set-option -g status-left "#[fg=green]Kitsune IDE #[fg=yellow]| #[fg=cyan]#S"
+tmux set-option -g status-right "#[fg=cyan]%Y-%m-%d %H:%M #[fg=yellow]| #[fg=green]#(whoami)"
+
+# --- Keybindings ---
+tmux bind-key C swap-pane -s 0.0 -t 0.3    # Ctrl+C to swap Ranger ↔ Claude
+tmux bind-key R source-file ~/.tmux.conf \; display "Reloaded Kitsune config"
+
+tmux bind-key -n C-h select-pane -L
+tmux bind-key -n C-j select-pane -D
+tmux bind-key -n C-k select-pane -U
+tmux bind-key -n C-l select-pane -R
+
+# Start session attached
+tmux attach -t "$SESSION_NAME"
+
