@@ -20,6 +20,10 @@ for f in "${FILES_TO_BACKUP[@]}"; do
   fi
 done
 
+# Install antigen
+brew install antigen
+
+
 # Symlink shell configs
 ln -sf "$DOTFILES_DIR/shell/zshrc" ~/.zshrc
 ln -sf "$DOTFILES_DIR/shell/antigenrc" ~/.kitsune-shell/antigenrc
@@ -37,6 +41,7 @@ ln -sf "$DOTFILES_DIR/tmux/tmux.conf" ~/.tmux.conf
 
 # Install kit launcher
 ln -sf "$DOTFILES_DIR/bin/kit" ~/.local/bin/kit
+chmod +x "$HOME/.local/bin/kit"
 
 echo "Installation complete! Old files are in $BACKUP_DIR."
 echo "Run 'kit [directory]' to start Kitsune."
