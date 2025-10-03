@@ -1,0 +1,22 @@
+# === Spaceship prompt ===
+SPACESHIP_PROMPT_ORDER=(
+  user
+  dir
+  git
+  host
+  exec_time
+  line_sep
+  exit_code
+  char
+)
+autoload -Uz promptinit; promptinit
+prompt spaceship
+
+# === Aliases ===
+source "$HOME/.kitsune-shell/aliases.sh"
+
+# === Functions ===
+source "$HOME/.kitsune-shell/functions.sh"
+
+# === Plugin Manager (Antigen trimmed) ===
+source "$HOME/.kitsune-shell/antigenrc"
