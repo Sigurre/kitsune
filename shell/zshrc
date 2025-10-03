@@ -1,25 +1,8 @@
-export PATH="$HOME/.local/bin:$PATH"
-
-# === Spaceship prompt ===
-SPACESHIP_PROMPT_ORDER=(
-  user
-  dir
-  git
-  host
-  exec_time
-  line_sep
-  exit_code
-  char
-)
+# Load Antigen first for plugins
+source "$HOME/.kitsune-shell/antigenrc"
+# Initialize prompt (Spaceship)
 autoload -Uz promptinit; promptinit
 prompt spaceship
-
-# === Aliases ===
+# Load aliases and functions
 source "$HOME/.kitsune-shell/aliases.sh"
-
-# === Functions ===
 source "$HOME/.kitsune-shell/functions.sh"
-
-# === Plugin Manager (Antigen trimmed) ===
-source "$HOME/.kitsune-shell/antigenrc"
-export PATH="$HOME/.local/bin:$PATH"

@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
-# Launch the Kitsune terminal IDE
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-"$SCRIPT_DIR/../kitsune/tmux-kitsune.sh" "$@"
+# Portable Kitsune IDE launcher
+SCRIPT_PATH="$(realpath "$0")"
+SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
+REPO_ROOT="$(realpath "$SCRIPT_DIR/..")"
+TARGET_DIR="${1:-$PWD}"
+cd "$TARGET_DIR" || exit 1
+TMUX_SCRIPT="$REPO_ROOT/kitsune/tmux-kitsune.sh"
+if [ ! -f "$TMUX_SCRIPT" ]; then
+    echo "Error: tmux-kitsune.sh not found at $TMUX_SCRIPT"
+    exit 1
+fi
+exec "$TMUX_SCRIPT"
